@@ -1,0 +1,51 @@
+function filterRouteByCoordinates(startCoord, endCoord) {
+  var filteredFeatures = shapes.geometries.filter(function (geometry) {
+    return (
+      geometry.type === "LineString" &&
+      arraysEqual(geometry.coordinates[0], startCoord) &&
+      arraysEqual(geometry.coordinates[geometry.coordinates.length - 1], endCoord)
+    );
+  });
+
+  if (filteredFeatures.length > 0) {
+    var filteredRoute = {
+      type: "FeatureCollection",
+      geometries: filteredFeatures,
+    };
+
+    return filteredRoute;
+  }
+
+  return null;
+}
+
+function arraysEqual(a, b) {
+  if (a === b) return true;
+  if (a == null || b == null) return false;
+  if (a.length !== b.length) return false;
+
+  for (var i = 0; i < a.length; ++i) {
+    if (a[i] !== b[i]) return false;
+  }
+
+  return true;
+}
+
+var startCoord = [36.7587786913, -1.17384195328];
+var endCoord = [36.8225723505, -1.28139317036];
+
+var filteredRoute = filterRouteByCoordinates(startCoord, endCoord);
+if (filteredRoute) {
+  var filteredGeoJSON = {
+    type: "FeatureCollection",
+    features: filteredRoute.geometries.map(function (geometry) {
+      return {
+        type: "Feature",
+        properties: {},
+        geometry: geometry,
+      };
+    }),
+  };
+
+  L.geoJSON(filteredGeoJSON).addTo(map);
+}
